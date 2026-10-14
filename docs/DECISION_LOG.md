@@ -1,0 +1,29 @@
+# Decision Log
+
+Status values: **PROPOSED** (awaiting approval) · **ACCEPTED** · **REJECTED** · **SUPERSEDED**.
+Record every change to a decision as a new row or a status update with the date and approver.
+
+| ID | Date | Decision | Status | Rationale | Alternatives | Ref |
+|---|---|---|---|---|---|---|
+| DEC-000 | 2026-10-14 | Use the SOW summary in `prompt.md` §3 as the only client source for this planning pass. Mark everything beyond it NEEDS CLARIFICATION. | ACCEPTED (by user, 2026-10-14) | The SOW file was not available; the user chose to proceed | Wait for the SOW | KI-001 |
+| DEC-001 | 2026-10-14 | Modular monolith (API + worker from one codebase) | PROPOSED | Small team, simpler ops, clear module boundaries | Microservices | Spec 06 §2 |
+| DEC-002 | 2026-10-14 | Frontend: Next.js (App Router) + React + TypeScript + Tailwind + headless UI primitives | PROPOSED | Ecosystem, SSR for public pages | Vite SPA | Spec 06 |
+| DEC-003 | 2026-10-14 | Backend: FastAPI (Python 3.12+), SQLAlchemy 2, Alembic, Pydantic v2 | PROPOSED | Best AI/RAG/parsing ecosystem | NestJS | Spec 06 |
+| DEC-004 | 2026-10-14 | PostgreSQL 16 + pgvector as the single primary store | PROPOSED | Transactional consistency between data and vectors; lower ops | Dedicated vector DB | Spec 06, 07 |
+| DEC-005 | 2026-10-14 | Shared schema multi-tenancy with `organization_id` + Postgres RLS + app-level scoping | PROPOSED | Defense in depth at low cost | Schema/DB per tenant | Spec 10 §3 |
+| DEC-006 | 2026-10-14 | Managed authentication provider (shortlist: Clerk, WorkOS AuthKit, Auth0); our DB is the source of truth for memberships and roles | PROPOSED (provider pending OQ-019) | Security features without building auth | Self-built auth | Spec 10 §1 |
+| DEC-007 | 2026-10-14 | Redis + Python task queue (Celery or Dramatiq) for background jobs and scheduling | PROPOSED | Mature, observable | Postgres-backed queue | Spec 06 |
+| DEC-008 | 2026-10-14 | Server-Sent Events for AI streaming and notifications | PROPOSED | One-way streaming is sufficient; simpler than WebSockets | WebSockets | Spec 06 |
+| DEC-009 | 2026-10-14 | AI provider abstraction; Anthropic Claude as the default LLM; separate embeddings provider; routing table by purpose and tier | PROPOSED (providers/budget pending OQ-013) | Avoid lock-in; cost tiering | Single-vendor SDK calls | Spec 09 §4 |
+| DEC-010 | 2026-10-14 | Sentry for errors; OpenTelemetry for traces/metrics; structured JSON logs; Grafana Cloud as the default backend | PROPOSED | Coverage vs cost | Datadog, New Relic | Spec 13 §1 |
+| DEC-011 | 2026-10-14 | S3-compatible object storage with org-prefixed keys and short-lived pre-signed URLs | PROPOSED | Standard, portable | DB blobs | Spec 06 |
+| DEC-012 | 2026-10-14 | Executives are data (template + config), not code | PROPOSED | Reusable Brain; configurable executives (REQ-003/004) | Per-executive code | Spec 09 §1 |
+| DEC-013 | 2026-10-14 | Google Drive starts with the `drive.file` scope + Picker | PROPOSED (pending OQ-010) | Avoids restricted-scope security assessment | `drive.readonly` | Spec 08 §4.4 |
+| DEC-014 | 2026-10-14 | Governance defaults: reads Allow; writes/publish Require Approval; external comms and financial can never be Allow; precedence Deny > Approval > Allow | PROPOSED | Safe by default | Allow by default | Spec 10 §8 |
+| DEC-015 | 2026-10-14 | Integration credentials use envelope encryption with versioned keys | PROPOSED | Rotation, blast-radius control | Plain DB encryption | Spec 10 §4 |
+| DEC-016 | 2026-10-14 | AI proposals (tasks/decisions/cases) need human confirmation before records are created | PROPOSED | Accountability; BR-W-04 | Auto-create | Spec 09 §3.3 |
+| DEC-018 | 2026-10-14 | **Customer-defined executive team**: each organization decides how many executives it has, creates them from five standard templates or from scratch, and configures, enables, disables and deletes them. The count is limited only by the plan entitlement `executives.max` (`-1` = unlimited), which the platform admin sets per plan and per org. Platform safety rules are never editable. | ACCEPTED (by user, 2026-10-14) | User instruction: "customer will decide how many executives they want, configure and set it" | Fixed five per org (previous draft) | BR-E-01…06, WF-07, S-12, S-15 |
+| DEC-019 | 2026-10-14 | Source control: GitHub repository `https://github.com/manishaj-code/Advolevel`, default branch `main`; single monorepo (`frontend/`, `backend/`, `infra/`, `docs/`) | ACCEPTED as the working repo (named by user, 2026-10-14). **SOW §6 requires AdvoLevel ownership**: it must move to an AdvoLevel-controlled org before handover (KI-006), and it should be private now | Repo already created | AdvoLevel org repo from day 1 (preferred) | KI-005, KI-006, OQ-017 |
+| DEC-020 | 2026-10-14 | The concise integrated SOW is the contractual baseline for scope. The specs were updated to cover all of its sections (public website screens, approval UI state, Figma by the vendor, Org DNA SOPs, case memory, retention controls, work↔approval links, GHL workflow operations, Drive/Dropbox import-only, Content Factory intake + transcription, AdvoLevel-owned accounts, handover contents, gate rule) | ACCEPTED (user request to align docs with the SOW) | SOW is the client source of truth | — | `SOW_INCLUSION_MATRIX.md` |
+| DEC-021 | 2026-10-14 | Screen inventory kept at 57 by merging S-03→S-02, S-04→S-01, S-19→S-18, S-25→S-24, S-50→S-49 and adding the public website S-W1…S-W5 | PROPOSED (to reconcile against the client inventory) | SOW requires ~57 including the public website | Grow to 62 | Spec 04 §L |
+| DEC-017 | 2026-10-14 | V1 Content Factory fallback destination = export to Drive/Dropbox/download until OQ-012 is answered | PROPOSED | Unblocks M10 with confirmed integrations | Wait | Spec 08 §4.7 |
