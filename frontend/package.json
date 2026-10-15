@@ -10,11 +10,15 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "api:types": "openapi-typescript lib/api/openapi.json -o lib/api/schema.d.ts"
   },
   "dependencies": {
+    "@clerk/nextjs": "^7.9.15",
     "@sentry/nextjs": "^11.7.0",
+    "@tanstack/react-query": "^5.104.2",
     "next": "16.4.1",
+    "openapi-fetch": "^0.17.0",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -29,6 +33,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.1",
     "jsdom": "^29.1.1",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.10",
     "tailwindcss": "^4",
     "typescript": "^5",

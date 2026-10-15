@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# clerk keyless-mode keys
+/.clerk/
+
 # vercel
 .vercel
 

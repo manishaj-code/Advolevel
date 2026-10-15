@@ -14,7 +14,7 @@ Docker (with compose), Python 3.12+ and uv, Node 22+ and npm.
 
 ## Run locally
 ```sh
-docker compose up -d --build     # db, redis, s3, migrate, api
+docker compose up -d --build     # db, redis, s3, mailpit, migrate, api
 curl http://127.0.0.1:8000/readyz  # {"status":"ok", ...}
 ```
 API docs: http://127.0.0.1:8000/api/v1/docs. Host ports default to 5442 (Postgres), 6390 (Redis), 8333 (S3), 8000 (API); copy `.env.example` to `.env` to change them.
@@ -26,6 +26,24 @@ cp .env.example .env.local
 npm ci
 npm run dev                      # http://localhost:3000
 ```
+
+## Authentication (Clerk) and email
+Sign-in uses Clerk (DEC-006). Without keys the API answers authenticated routes with 503 `auth_not_configured`; the tests use local keys and need nothing.
+
+1. Create a Clerk **development** instance in an AdvoLevel-owned account (KI-004). In the dashboard: require email verification, enable the password policy and MFA options you want.
+2. Root `.env` (read by compose) and `backend/.env`: `AUTH_ISSUER` (the Frontend API URL, `https://<slug>.clerk.accounts.dev`), `AUTH_SECRET_KEY` (`sk_test_…`), `AUTH_WEBHOOK_SECRET` (`whsec_…`, from step 3).
+3. Webhooks: point an endpoint at `<public API URL>/api/v1/webhooks/clerk` for `user.created`, `user.updated`, `user.deleted` (locally, use a tunnel; without it users are provisioned just in time on first request).
+4. `frontend/.env.local`: `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` (see `frontend/.env.example`).
+
+Invitation emails go to Mailpit locally: http://127.0.0.1:8025. Platform admins (needed for `/api/v1/admin/*`) are set by SQL until the admin UI exists (M12): `UPDATE users SET is_platform_admin = true WHERE email = '…';` as the owner role.
+
+## API contract
+The frontend client is generated from the backend's OpenAPI document. After changing an endpoint or schema:
+```sh
+cd backend && uv run python -m app.openapi ../frontend/lib/api/openapi.json
+cd ../frontend && npm run api:types
+```
+CI fails if either generated file is out of date.
 
 ## Backend development
 ```sh

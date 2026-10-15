@@ -3,8 +3,9 @@ import { expect, test } from "vitest";
 
 import Home from "./page";
 
-test("home renders inside the app shell", () => {
+test("landing page offers sign-up and sign-in", () => {
   render(<Home />);
-  expect(screen.getByRole("heading", { level: 1 })).toBeDefined();
-  expect(screen.getByRole("navigation", { name: "Primary" })).toBeDefined();
+  expect(screen.getByRole("heading", { level: 1 }).textContent).toContain("executive team");
+  expect(screen.getByRole("link", { name: "Get started" }).getAttribute("href")).toBe("/sign-up");
+  expect(screen.getByRole("link", { name: "Sign in" }).getAttribute("href")).toBe("/sign-in");
 });

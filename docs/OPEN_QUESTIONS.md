@@ -11,7 +11,7 @@ Update the **Status** and **Answer** columns as responses arrive, then update th
 | OQ-038 | Commercial proposal: fixed price, milestone amounts, recurring third-party charges, staffing, warranty | Critical | Vendor | Signature | Open | |
 | OQ-020 | Existing codebase/design or mandated stack? | Critical | Client | M0 start | Open | |
 | OQ-017 | Account ownership + access (git, cloud, domain, Stripe, AI, dev apps, Sentry, email) | Critical | Client | M9, M11, M14 | Partly answered | 2026-10-14: git = `github.com/manishaj-code/Advolevel` (empty, public; private recommended). Long-term repo ownership/transfer and all other accounts still open |
-| OQ-019 | Auth provider preference; SSO in V1? | High | Joint | M1 start | Open | |
+| OQ-019 | Auth provider preference; SSO in V1? | High | Joint | M1 start | Partly answered | **Clerk** (user, 2026-10-15; DEC-006). SSO/SAML in V1 still open (Clerk enterprise SSO is a paid add-on); production Clerk instance must be AdvoLevel-owned (OQ-017) |
 | OQ-013 | AI providers, budget, platform-paid vs BYO keys | Critical | Joint | M5 start | Open | |
 | OQ-014 | Hosting, region, scale, infra budget | High | Joint | M0 (region), M12 | Open | |
 | OQ-027 | Remainder of `prompt.md` after line 300 | Medium | Vendor | Tracking docs | Open | |
@@ -27,7 +27,7 @@ Update the **Status** and **Answer** columns as responses arrive, then update th
 | OQ-039 | Transcription volume, languages; transcripts in RAG? | Medium | Open | |
 | OQ-005 | File formats and limits | High | Open | |
 | OQ-006 | User/org limits and scale | High | Open | |
-| OQ-029 | Email provider and sending domain | Medium | Open | |
+| OQ-029 | Email provider and sending domain | Medium | Open | Deferred by user 2026-10-15: SMTP to a local Mailpit sink behind an `EmailSender` interface until the domain exists (DEC-027) |
 | OQ-026 | Data residency | Medium | Open | |
 
 ## Ask before the feature milestones (M6–M12)

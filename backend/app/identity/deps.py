@@ -7,6 +7,7 @@ from typing import Annotated
 
 import structlog
 from fastapi import Depends, Header, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,17 +28,21 @@ def _unauthenticated(detail: str = "Sign in to continue.") -> AppError:
     return AppError(401, "unauthenticated", detail)
 
 
+# Declared as an OpenAPI security scheme; we raise our own problem+json 401 instead of FastAPI's.
+_bearer = HTTPBearer(auto_error=False, description="Clerk session token")
+
+
 async def get_principal(
-    request: Request, authorization: Annotated[str | None, Header()] = None
+    request: Request,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> Principal:
     verifier: TokenVerifier | None = request.app.state.token_verifier
     if verifier is None:
         raise AppError(503, "auth_not_configured", "Authentication is not configured.")
-    scheme, _, token = (authorization or "").partition(" ")
-    if scheme.lower() != "bearer" or not token:
+    if credentials is None or not credentials.credentials:
         raise _unauthenticated()
     try:
-        return await verifier.verify(token.strip())
+        return await verifier.verify(credentials.credentials.strip())
     except InvalidTokenError as exc:
         log.info("token_rejected", reason=str(exc))
         raise _unauthenticated() from exc

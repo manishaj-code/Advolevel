@@ -52,8 +52,12 @@
 | PATCH/DELETE | `/members/{id}` | Change role/capabilities, remove | admin |
 | POST/GET | `/invitations` | Invite / list | admin |
 | DELETE | `/invitations/{id}` | Revoke | admin |
-| GET | `/invitations/by-token/{token}` | Preview (public, rate-limited) | public |
-| POST | `/invitations/by-token/{token}/accept` | Accept | auth |
+| POST | `/invitations/{id}/resend` | Rotate the token, restart the 7-day expiry, re-send (DEC-026) | admin |
+| POST | `/invitations/preview` | Preview; token in the body (public, rate-limited from M2) (DEC-026) | public |
+| POST | `/invitations/accept` | Accept; token in the body; verified email must match (DEC-026, DEC-028) | auth |
+| POST | `/webhooks/clerk` | `user.created/updated/deleted` (Svix signature) | public, signed |
+
+Invitation error codes: 404 `invitation_not_found`, 410 `invitation_expired` / `invitation_used` / `invitation_revoked`, 403 `invitation_email_mismatch`, 409 `invitation_pending` / `already_member`. Other identity codes: 403 `email_unverified`, 409 `owner_protected`, 503 `auth_not_configured` / `provider_unavailable`.
 
 ### Executives and conversations
 | Method | Path | Purpose |
