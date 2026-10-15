@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Design tokens: spec 05 "Concept B — Premium Executive". Values are PROPOSED until Figma F-1. */
+@theme {
+  --color-navy-950: #0b1526;
+  --color-navy-900: #111f38;
+  --color-navy-800: #1a2c4e;
+  --color-navy-700: #243b66;
+  --color-navy-500: #3e5a8c;
+  --color-navy-100: #e3e8f1;
+
+  --color-gold-600: #9c7a2e;
+  --color-gold-500: #b8923a;
+  --color-gold-300: #d9c08a;
+  --color-gold-100: #f4ecd9;
+
+  --color-stone-0: #ffffff;
+  --color-stone-50: #faf8f4;
+  --color-stone-100: #f2eee7;
+  --color-stone-200: #e5dfd4;
+  --color-stone-400: #b3aa9b;
+  --color-stone-600: #6e6557;
+  --color-stone-800: #3a342b;
+
+  --color-success-600: #2f6b4f;
+  --color-success-50: #eaf3ee;
+  --color-warning-600: #9a5b13;
+  --color-warning-50: #fbf1e4;
+  --color-danger-600: #a23b3b;
+  --color-danger-50: #f8eaea;
+  --color-info-600: #2d5d8a;
+  --color-info-50: #e8f0f7;
+
+  /* Semantic aliases, so a dark theme can be added later (OQ-035). */
+  --color-surface: var(--color-stone-0);
+  --color-canvas: var(--color-stone-50);
+  --color-border: var(--color-stone-200);
+  --color-text-primary: var(--color-navy-900);
+  --color-text-secondary: var(--color-stone-600);
+  --color-accent: var(--color-gold-500);
+  --color-focus: var(--color-navy-500);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-source-serif), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+
+  --text-body: 15px;
+  --text-body--line-height: 24px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+
+  --radius-control: 6px;
+  --radius-card: 10px;
+  --radius-modal: 16px;
+
+  --shadow-1: 0 1px 2px rgb(58 52 43 / 0.06);
+  --shadow-2: 0 4px 12px rgb(58 52 43 / 0.08);
+  --shadow-3: 0 12px 32px rgb(58 52 43 / 0.12);
+
+  --spacing-sidebar: 248px;
+  --spacing-sidebar-collapsed: 72px;
+  --spacing-context-panel: 360px;
+  --container-content: 1280px;
+}
+
+@layer base {
+  body {
+    background: var(--color-canvas);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  /* Spec 05 §7: a visible 2px focus ring that is never removed. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  .on-dark :focus-visible {
+    outline-color: var(--color-gold-300);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

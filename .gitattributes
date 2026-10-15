@@ -1,0 +1,5 @@
+# LF everywhere so prettier/ruff checks agree across Windows, macOS, Linux and CI.
+* text=auto eol=lf
+*.ico binary
+*.png binary
+*.pdf binary

@@ -1,11 +1,27 @@
 # Implementation Status
 
-**As of 2026-10-14: no implementation has started.** This planning session produced documentation only. No application code, dependencies, infrastructure or external services were created or changed.
+**As of 2026-10-15: M0 (repository foundation) is implemented locally and committed, not pushed** (the repo is still public, KI-005). No external services, accounts or cloud infrastructure have been created.
+
+## M0 evidence (2026-10-15)
+| Exit criterion (roadmap M0) | Result |
+|---|---|
+| Monorepo layout `frontend/`, `backend/`, `infra/`, `docs/`, `.github/` | Done |
+| `docker compose up` brings up db (Postgres 16 + pgvector), redis, s3 (SeaweedFS), migrate, api | Verified: all healthy; `/healthz` 200, `/readyz` 200 with DB, migrations-at-head and Redis checks |
+| Two DB roles: owner for migrations, `advolevel_app` without BYPASSRLS for the API | Verified (`rolbypassrls` f for the app role); the API container receives no owner credentials |
+| Alembic baseline (`vector`, `pgcrypto`), upgrade/downgrade round-trip | Verified locally |
+| Structured JSON logs with `request_id` (+ `trace_id` when tracing), full route templates, redaction | Verified (unit tests + container logs) |
+| RFC 9457 problem+json errors carrying `request_id` | Verified |
+| Sentry (backend and frontend) + OpenTelemetry wiring, scrubbing `before_send` | Wired and unit-tested. **Delivery to Sentry not verified: no DSN exists yet (KI-008)** |
+| Backend quality gates: ruff format/check, mypy strict, pytest | 32 tests pass (31 unit + 1 integration against compose) |
+| Frontend quality gates: eslint, prettier, tsc, vitest, `next build` | All pass; 13 tests |
+| CI workflow (`.github/workflows/ci.yml`): backend, backend-integration, frontend, gitleaks | Written. **Not yet run on GitHub** (nothing pushed) |
+| Pre-commit (gitleaks, ruff, prettier) | Config written; install with `uvx pre-commit install` |
+| Design tokens (spec 05) as Tailwind v4 theme; placeholder app shell | Done (full shell is M3) |
 
 ## Milestones
 | Milestone | Status | Started | Completed | Notes |
 |---|---|---|---|---|
-| M0 Repository foundation | Not started | — | — | Ready to start once DEC-001…004 are approved and the git host is chosen |
+| M0 Repository foundation | Done locally; CI pending first push | 2026-10-15 | — | Complete after CI passes on GitHub and Sentry delivery is verified (KI-008) |
 | M1 Auth, orgs, RBAC | Not started | — | — | Needs OQ-019, OQ-029 |
 | M2 Tenant isolation & audit | Not started | — | — | |
 | M3 Design system & shell | Not started | — | — | Needs OQ-025 |
