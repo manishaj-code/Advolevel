@@ -9,7 +9,12 @@ from app.core.config import Settings, get_settings
 from app.core.errors import UnhandledErrorMiddleware, register_error_handlers
 from app.core.logging import AccessLogMiddleware, configure_logging
 from app.core.request_context import REQUEST_ID_HEADER, RequestIdMiddleware
+from app.core.security import build_token_verifier
 from app.core.telemetry import init_sentry, init_tracing
+from app.email.sender import build_email_sender
+from app.identity import router as identity_router
+from app.identity import webhooks as identity_webhooks
+from app.identity.provider import ClerkIdentityProvider
 
 API_PREFIX = "/api/v1"
 
@@ -28,8 +33,20 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     register_error_handlers(app)
 
+    # Swappable collaborators; tests replace them on app.state.
+    app.state.token_verifier = build_token_verifier(settings)
+    secret = settings.auth_secret_key
+    app.state.identity_provider = (
+        ClerkIdentityProvider(api_url=settings.auth_api_url, secret_key=secret.get_secret_value())
+        if secret
+        else None
+    )
+    app.state.email_sender = build_email_sender(settings)
+
     app.include_router(health.router)
     api = APIRouter(prefix=API_PREFIX)
+    api.include_router(identity_router.router)
+    api.include_router(identity_webhooks.router)
     if settings.debug_endpoints_enabled:
         api.include_router(debug.router)
     app.include_router(api)

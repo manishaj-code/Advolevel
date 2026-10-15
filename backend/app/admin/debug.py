@@ -1,12 +1,16 @@
 """MON-01: trigger a test exception to prove Sentry wiring (spec 13 §12).
 
-Mounted only when DEBUG_ENDPOINTS_ENABLED is true, which settings forbid in production.
-TODO(M1): require the platform-admin capability once authentication exists (KI-007).
+Mounted only when DEBUG_ENDPOINTS_ENABLED is true (settings forbid it in production), and only
+platform admins can call it (KI-007).
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
-router = APIRouter(prefix="/admin/debug", tags=["admin"])
+from app.identity.deps import require_platform_admin
+
+router = APIRouter(
+    prefix="/admin/debug", tags=["admin"], dependencies=[Depends(require_platform_admin)]
+)
 
 
 class DebugTestError(RuntimeError):

@@ -10,6 +10,15 @@ x-backend-env: &backend-env
   S3_ENDPOINT: http://s3:8333
   S3_BUCKET: advolevel-local
   DEBUG_ENDPOINTS_ENABLED: "true"
+  APP_BASE_URL: http://localhost:3000
+  EMAIL_PROVIDER: smtp
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  # Clerk (DEC-006), from the root .env. Unset = authenticated endpoints answer 503.
+  AUTH_ISSUER: ${AUTH_ISSUER:-}
+  AUTH_SECRET_KEY: ${AUTH_SECRET_KEY:-}
+  AUTH_WEBHOOK_SECRET: ${AUTH_WEBHOOK_SECRET:-}
+  AUTH_AUTHORIZED_PARTIES: http://localhost:3000
   SENTRY_DSN: ${SENTRY_DSN:-}
   OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
 
@@ -52,6 +61,13 @@ services:
       timeout: 3s
       retries: 30
 
+  # Local SMTP sink for invitation emails (OQ-029 pending). Inbox UI: http://127.0.0.1:8025
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "127.0.0.1:${MAILPIT_UI_HOST_PORT:-8025}:8025"
+      - "127.0.0.1:${MAILPIT_SMTP_HOST_PORT:-1025}:1025"
+
   migrate:
     build: ./backend
     command: ["alembic", "upgrade", "head"]
@@ -70,6 +86,7 @@ services:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
       s3: { condition: service_healthy }
+      mailpit: { condition: service_started }
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/readyz')"]
       interval: 10s

@@ -2,12 +2,14 @@ from typing import Any
 
 import pytest
 import sentry_sdk
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from structlog.testing import capture_logs
 
 from app.core import health
 from app.core.config import Settings
 from app.core.telemetry import sentry_before_send
+from app.identity.deps import require_platform_admin
 from app.main import create_app
 from tests.conftest import make_settings
 
@@ -50,11 +52,17 @@ def test_not_found_is_problem_json(client: TestClient) -> None:
     assert body["request_id"] == "req-404-000000"
 
 
+def test_debug_endpoint_hidden_without_platform_admin(client: TestClient) -> None:
+    # 401 (no token), or 503 when no AUTH_ISSUER is configured; never the raising handler's 500.
+    assert client.post("/api/v1/admin/debug/raise").status_code in (401, 503)
+
+
 def test_unhandled_error_is_500_problem_with_request_id(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch
+    app: FastAPI, client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     captured: list[BaseException] = []
     monkeypatch.setattr(sentry_sdk, "capture_exception", captured.append)
+    app.dependency_overrides[require_platform_admin] = lambda: None
 
     response = client.post("/api/v1/admin/debug/raise", headers={"X-Request-Id": "req-500-000000"})
 
@@ -128,4 +136,4 @@ def test_readyz_ok_when_dependencies_ok(
 
 
 def test_migration_heads_resolve() -> None:
-    assert health.expected_migration_heads() == frozenset({"0001"})
+    assert len(health.expected_migration_heads()) == 1  # linear history (spec 12 §5)

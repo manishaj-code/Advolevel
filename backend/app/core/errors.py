@@ -8,6 +8,7 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -102,8 +103,15 @@ async def _validation_error(_: Request, exc: Exception) -> JSONResponse:
     return problem_response(400, "validation_error", "The request is invalid.", errors=errors)
 
 
+async def _integrity_error(_: Request, exc: Exception) -> JSONResponse:
+    # Unique/FK violations that slipped past service checks (e.g. concurrent requests).
+    log.info("integrity_conflict", error=type(getattr(exc, "orig", exc)).__name__)
+    return problem_response(409, "conflict", "The request conflicts with the current state.")
+
+
 def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AppError, _app_error)
+    app.add_exception_handler(IntegrityError, _integrity_error)
     app.add_exception_handler(StarletteHTTPException, _http_error)
     app.add_exception_handler(RequestValidationError, _validation_error)
 
